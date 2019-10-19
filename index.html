@@ -59,7 +59,8 @@
             function getAddress(coords) {
                 userLocationOnMap.properties.set('iconCaption', 'поиск...');
                 ymaps.geocode(coords).then(function (res) {
-                    var firstGeoObject = res.geoObjects.get(0);
+                    var firstGeoObject = res.geoObjects.get(0),
+                        getAdressLine = firstGeoObject.getAddressLine();
 
                     userLocationOnMap.properties
                         .set({
@@ -71,10 +72,10 @@
                                 firstGeoObject.getThoroughfare() || firstGeoObject.getPremise()
                             ].filter(Boolean).join(', '),
                             // В качестве контента балуна задаем строку с адресом объекта.
-                            balloonContent: firstGeoObject.getAddressLine()
+                            balloonContent: getAdressLine
                         });
                         
-                        userAddressString.value = firstGeoObject.getAddressLine();
+                        userAddressString.value = getAdressLine;
                 });
             }
 
@@ -84,19 +85,22 @@
                 }).then(function (res) {
                     // Выбираем первый результат геокодирования.
                     var firstGeoObject = res.geoObjects.get(0),
-                        // Координаты геообъекта.
-                        coords = firstGeoObject.geometry.getCoordinates(),
-                        // Область видимости геообъекта.
-                        bounds = firstGeoObject.properties.get('boundedBy');
+                        bounds = firstGeoObject.properties.get('boundedBy'),
+                        coords = firstGeoObject.geometry.getCoordinates();
+    
+                    myMap.geoObjects.remove(userLocationOnMap);
+                    userLocationOnMap = createPlacemark(coords);
+                    
+                    myMap.geoObjects.add(userLocationOnMap);
+                    // Область видимости геообъекта.
+                    
 
-                    firstGeoObject.options.set('preset', 'islands#darkBlueDotIconWithCaption');
+                    // firstGeoObject.options.set('preset', 'islands#darkBlueDotIconWithCaption');
                     
                     // Получаем строку с адресом и выводим в иконке геообъекта.
-                    firstGeoObject.properties.set('iconCaption', firstGeoObject.getAddressLine());
-                    myMap.geoObjects.remove(userLocationOnMap);
-                    userLocationOnMap = firstGeoObject;
+                    getAddress(coords);
+                    
                     // Добавляем первый найденный геообъект на карту.
-                    myMap.geoObjects.add(userLocationOnMap);
                     
                     // Масштабируем карту на область видимости геообъекта.
                     myMap.setBounds(bounds, {
@@ -107,7 +111,8 @@
             }
 
             userAddressString.onkeyup = userAddressStringHandler;
-
+            var timeoutId = 0;
+            
             function userAddressStringHandler() {
                 if(timeoutId != 0) {
                     clearTimeout(timeoutId);
@@ -118,19 +123,7 @@
                 searchByAddress(userAddressString.value);
             }
         }
-
-
-
-
-
-
-
-
-            var timeoutId = 0;
             
-            
-
-
         </script>
     </body> 
 </html>
