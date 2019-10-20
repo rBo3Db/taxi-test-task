@@ -16,6 +16,10 @@
     <body>
         <input type="text" id="userAddressString"></input>
         <div id="map" style="width: 600px; height: 400px"></div>
+        <div id="footer">
+            <div id="messageHeader"></div>
+            <div id="message"></div>
+        </div>
         <script>
         var userAddressString = document.getElementById('userAddressString');
         ymaps.ready(init);
@@ -31,83 +35,57 @@
 
             myMap.events.add('click', function (e) {
                 var coords = e.get('coords');
-
-                // Если метка уже создана – просто передвигаем ее.
-                if (userLocationOnMap) {
-                    userLocationOnMap.geometry.setCoordinates(coords);
-                }
-                // Если нет – создаем.
-                else {
-                    userLocationOnMap = createPlacemark(coords);
-                    myMap.geoObjects.add(userLocationOnMap);
-                    // Слушаем событие окончания перетаскивания на метке.
                     userLocationOnMap.events.add('dragend', function () {
                         getAddress(userLocationOnMap.geometry.getCoordinates());
                     });
-                }
+                // }
                 getAddress(coords);
             });
 
             // Создание метки.
             function createPlacemark(coords) {
-                return new ymaps.Placemark(coords, {
-                    iconCaption: 'поиск...'
-                });
+                userLocationOnMap
+                return (new ymaps.Placemark(coords, {}, {
+                    preset: 'islands#yellowDotIconWithCaption'
+                }));
             }
 
             // Определяем адрес по координатам (обратное геокодирование).
             function getAddress(coords) {
-                userLocationOnMap.properties.set('iconCaption', 'поиск...');
                 ymaps.geocode(coords).then(function (res) {
-                    var firstGeoObject = res.geoObjects.get(0),
-                        getAdressLine = firstGeoObject.getAddressLine();
-
-                    userLocationOnMap.properties
-                        .set({
-                            // Формируем строку с данными об объекте.
-                            iconCaption: [
-                                // Название населенного пункта или вышестоящее административно-территориальное образование.
-                                firstGeoObject.getLocalities().length ? firstGeoObject.getLocalities() : firstGeoObject.getAdministrativeAreas(),
-                                // Получаем путь до топонима, если метод вернул null, запрашиваем наименование здания.
-                                firstGeoObject.getThoroughfare() || firstGeoObject.getPremise()
-                            ].filter(Boolean).join(', '),
-                            // В качестве контента балуна задаем строку с адресом объекта.
-                            balloonContent: getAdressLine
-                        });
-                        
-                        userAddressString.value = getAdressLine;
+                    myMap.geoObjects.remove(userLocationOnMap);
+                    var firstGeoObject = res.geoObjects.get(0);
+                    if (firstGeoObject.getThoroughfare() && firstGeoObject.getPremiseNumber()) {                      
+                        userAddressString.value = firstGeoObject.getThoroughfare() + ', ' + firstGeoObject.getPremiseNumber();  
+                        userLocationOnMap = createPlacemark(coords);
+                        myMap.geoObjects.add(userLocationOnMap);
+                    } else {
+                        userAddressString.value = '';
+                        console.log('адрес не найден');
+                    }
                 });
             }
-
+            
             function searchByAddress(address) {
-                ymaps.geocode(address, {
-                    results: 1
-                }).then(function (res) {
-                    // Выбираем первый результат геокодирования.
-                    var firstGeoObject = res.geoObjects.get(0),
-                        bounds = firstGeoObject.properties.get('boundedBy'),
-                        coords = firstGeoObject.geometry.getCoordinates();
-    
-                    myMap.geoObjects.remove(userLocationOnMap);
-                    userLocationOnMap = createPlacemark(coords);
-                    
-                    myMap.geoObjects.add(userLocationOnMap);
-                    // Область видимости геообъекта.
-                    
+                if (address) {
+                    ymaps.geocode('Ижевск ' + address, {
+                        results: 1
+                    }).then(function (res) {
+                        // Выбираем первый результат геокодирования.
+                        var firstGeoObject = res.geoObjects.get(0),
+                            bounds = firstGeoObject.properties.get('boundedBy'),
+                            coords = firstGeoObject.geometry.getCoordinates();
 
-                    // firstGeoObject.options.set('preset', 'islands#darkBlueDotIconWithCaption');
-                    
-                    // Получаем строку с адресом и выводим в иконке геообъекта.
-                    getAddress(coords);
-                    
-                    // Добавляем первый найденный геообъект на карту.
-                    
-                    // Масштабируем карту на область видимости геообъекта.
-                    myMap.setBounds(bounds, {
-                        // Проверяем наличие тайлов на данном масштабе.
-                        checkZoomRange: true
+                        // Получаем строку с адресом и выводим в иконке геообъекта.
+                        getAddress(coords);
+
+                        // Масштабируем карту на область видимости геообъекта.
+                        myMap.setBounds(bounds, {
+                            // Проверяем наличие тайлов на данном масштабе.
+                            checkZoomRange: true
+                        });
                     });
-                });
+                }
             }
 
             userAddressString.onkeyup = userAddressStringHandler;
