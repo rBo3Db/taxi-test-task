@@ -1,0 +1,7 @@
+.form-of-order-taxi__alert-text--hidden {
+    display: none;
+}
+.suitable-car {
+    display: flex;
+    flex-basis: 320px;
+}
