@@ -7,6 +7,6 @@ npm install webpack-cli webpack-dev-server path --save-dev
 npm install --save-dev html-webpack-plugin 
 npm install
 
-you can use it, check commands for start server in package.json in "scripts": {
+than pls write in console: npm start for dev start;
 
 thanks ^^
