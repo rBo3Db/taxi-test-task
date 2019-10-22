@@ -1,0 +1,8 @@
+.cars-map-module {
+    display:flex;
+    flex-wrap: wrap;
+    @include element('map') {
+        min-width: 320px;
+        min-height: 320px;
+    }
+}

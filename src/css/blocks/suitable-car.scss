@@ -1,0 +1,32 @@
+
+.suitable-car {
+    display: inline-flex;
+    max-width: 300px;
+    min-width: 270px;
+    border: $border-size solid royalblue;
+    border-radius: $border-radius;
+    justify-content:center;
+    margin: 20px;
+
+    @include element('logo') {
+        margin: auto 5px;
+        flex: 1 1 auto;
+        max-width: 70px;
+    }
+    @include element('text') {
+        flex: 2 1 auto;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    @include element('name') {
+        font-size: 20px;
+        margin: 0px;
+    }
+    @include element('color') {
+        margin: 0px;
+    }
+    @include element('reg-number') {
+        margin: 0px;
+    }
+}

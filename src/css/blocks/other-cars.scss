@@ -1,0 +1,6 @@
+.other-cars {
+    @include element ('car') {
+        border: $border-size solid, blueviolet;
+        border-radius: $border-radius;
+    }
+}

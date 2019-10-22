@@ -1,0 +1,12 @@
+.form-of-order-taxi {
+    @include element('address-string') {
+        max-width: 600px;
+        min-width: 280px;
+    }
+    @include element('alert-text') {
+        color: red;
+        @include modifier('hidden') {
+            display: none;
+        }  
+    }
+}
