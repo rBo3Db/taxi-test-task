@@ -7,6 +7,7 @@ npm install webpack-cli webpack-dev-server path --save-dev
 npm install --save-dev html-webpack-plugin 
 npm install
 
-than pls write in console: npm start for dev start;
+than pls write in console: npm start
+for dev start;
 
 thanks ^^
